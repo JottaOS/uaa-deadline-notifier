@@ -7,6 +7,7 @@ export interface ScrapedActivity {
 }
 
 export interface Activity {
+  id: number;
   title: string;
   course_id: number;
   course_title: string;
@@ -14,4 +15,14 @@ export interface Activity {
   url: string;
   opening_timestamp: string; // ISO string
   closing_timestamp: string; // ISO string
+}
+
+export type NotificationStatus = "PENDING" | "SENT" | "FAILED";
+
+export interface Notification {
+  id: number;
+  activity_id: number;
+  send_at: string; // ISO string
+  status: NotificationStatus;
+  created_at: string;
 }

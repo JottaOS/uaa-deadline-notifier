@@ -1,10 +1,6 @@
 import type { Activity } from "../types";
 import pool from "./config";
 
-/**
- * Example function to retrieve user role by ID.
- * Parameterized queries safeguard against SQL injection.
- */
 export async function getAllPendingActivities() {
   const query = "SELECT * FROM activity a WHERE a.closing_timestamp > NOW();";
   try {
@@ -20,11 +16,12 @@ export async function getAllPendingActivities() {
 export async function createActivity(activity: Activity) {
   const query = `
         INSERT INTO activity 
-            (title, course_id, course_title, type, url, opening_timestamp, closing_timestamp)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (id, title, course_id, course_title, type, url, opening_timestamp, closing_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
     `;
   const values = [
+    activity.id,
     activity.title,
     activity.course_id,
     activity.course_title,
@@ -42,7 +39,7 @@ export async function createActivity(activity: Activity) {
   }
 }
 
-export async function getActivityById(id: number) {
+export async function getActivityById(id: number): Promise<Activity> {
   const query = "SELECT * FROM activity WHERE id = $1";
   try {
     const result = await pool.query(query, [id]);

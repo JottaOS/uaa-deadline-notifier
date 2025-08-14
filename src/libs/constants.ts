@@ -5,6 +5,11 @@ export const USERNAME = process.env.UAA_USERNAME || "";
 export const PASSWORD = process.env.UAA_PASSWORD || "";
 export const LOGIN_URL = "https://e.uaa.edu.py/principal.html";
 export const CALENDAR_URL = "https://e.uaa.edu.py/my/";
+export const REMINDER_TIMES = [
+  16 * 60 * 60 * 1000, // 16 horas
+  6 * 60 * 60 * 1000, // 6 horas
+  1 * 60 * 60 * 1000, // 1 hora
+];
 
 export const monthsMap = new Map<string, string>([
   ["enero", "1"],
