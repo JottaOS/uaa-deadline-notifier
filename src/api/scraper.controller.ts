@@ -2,29 +2,14 @@ import type { Request, Response } from "express";
 import { Scraper } from "../scraper";
 import { scrapedMock } from "../libs/constants";
 import { formatScrapedActivities } from "../libs/utils";
-import { insertActivityWithNotifications } from "../services/activities";
+import {
+  getUpcomingActivities,
+  insertActivityWithNotifications,
+} from "../services/activities";
 
 export const getActivities = async (req: Request, res: Response) => {
   try {
-    const scraper = new Scraper();
-
-    await scraper.initialize();
-    await scraper.login();
-    const links = await scraper.getCalendarLinks();
-
-    const scrapedActivities = [];
-    for (const url of links) {
-      const activity = await scraper.scrapeActivity(url);
-      scrapedActivities.push(activity);
-    }
-
-    await scraper.close();
-
-    const activities = formatScrapedActivities(scrapedActivities);
-
-    const upcomingActivities = activities.filter(
-      (activity) => new Date(activity.closing_timestamp) >= new Date()
-    );
+    const upcomingActivities = await getUpcomingActivities();
 
     for (const activity of upcomingActivities) {
       insertActivityWithNotifications(activity);
@@ -35,7 +20,7 @@ export const getActivities = async (req: Request, res: Response) => {
       data: upcomingActivities,
     });
   } catch (error) {
-    console.error("Error in controller:", error);
+    console.error("Error in getActivities:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching activities",
