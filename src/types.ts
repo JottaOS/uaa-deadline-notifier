@@ -7,11 +7,11 @@ export interface ScrapedActivity {
 }
 
 export interface Activity {
-  id: number;
-  courseId: number;
   title: string;
-  type: "quiz" | "assign";
+  course_id: number;
+  course_title: string;
+  type: "QUIZ" | "ASSIGN";
   url: string;
-  openingTimestamp: number;
-  closingTimestamp: number;
+  opening_timestamp: string; // ISO string
+  closing_timestamp: string; // ISO string
 }

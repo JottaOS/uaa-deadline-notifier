@@ -14,41 +14,43 @@ export const formatScrapedActivities = (
 ): Activity[] => {
   return scrapedActivities.map((item) => {
     const id = new URL(item.url).searchParams.get("id");
-    const [courseId, courseTitle] = item.course
+    const [course_id, course_title] = item.course
       .split("-")
       .map((item) => item.trim());
-    const type = item.url.split("/")[4] as Activity["type"];
-    const openingTimestamp = textDateToTimestamp(item.openingDate);
-    const closingTimestamp = textDateToTimestamp(item.closingDate);
+    const type = item.url.split("/")[4]?.toUpperCase() as Activity["type"];
+    const opening_timestamp = textDateToIsoString(item.openingDate);
+    const closing_timestamp = textDateToIsoString(item.closingDate);
 
     if (!id) throw new Error("Could not get activity id from URL: " + item.url);
 
     return {
       id: Number(id),
-      courseId: Number(courseId),
-      courseTitle,
+      course_id: Number(course_id ?? 0),
+      course_title: course_title || "",
       title: item.title,
       url: item.url,
       type,
-      openingTimestamp,
-      closingTimestamp,
+      opening_timestamp,
+      closing_timestamp,
     };
   });
 };
 
 /**
  * Transforms a formatted string date to its corresponding timestamp in -3 UTC
+ *
+ * Example output: 2025-08-14T15:00:00+02:00
  * @param textDate Example format: "Cierre: lunes, 11 de agosto de 2025, 23:25"
  */
-const textDateToTimestamp = (textDate: string): number => {
-  if (!textDate) return 0;
+const textDateToIsoString = (textDate: string): string => {
+  if (!textDate) return "";
 
   try {
     const [_, date, time] = textDate.split(",").map((item) => item.trim());
 
     if (!date || !time) {
       console.error(`Could not extract date or time from textDate: `, textDate);
-      return 0;
+      return "";
     }
 
     const [dayOfMonth, monthTitle, year] = date
@@ -60,36 +62,26 @@ const textDateToTimestamp = (textDate: string): number => {
         `Could not extract dayOfMonth, monthTitle or year from date: `,
         date
       );
-      return 0;
+      return "";
     }
 
     const month = monthsMap.get(monthTitle);
     if (!month) {
       console.error(`Invalid month title: ${monthTitle}`);
-      return 0;
+      return "";
     }
 
-    const formattedDate = `${year}-${padLeft(
-      month.toString(),
-      2,
-      "0"
-    )}-${padLeft(dayOfMonth, 2, "0")}T${time}:00.00-03:00`;
+    const isoDate = `${year}-${pad(month.toString())}-${pad(
+      dayOfMonth
+    )}T${time}:00.00-03:00`;
 
-    const timestamp = new Date(formattedDate).valueOf();
-    if (isNaN(timestamp)) {
-      console.error(`Invalid date format: ${formattedDate}`);
-      return 0;
-    }
-
-    return timestamp;
+    return isoDate;
   } catch (error) {
     console.error("Error parsing date:", error);
-    return 0;
+    return "";
   }
 };
 
-export const padLeft = (text: string, maxLength: number, padString: string) => {
-  if (text.length >= maxLength) return text;
-
-  return padString.repeat(maxLength - text.length) + text;
+export const pad = (text: string) => {
+  return text.padStart(2, "0");
 };

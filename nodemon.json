@@ -8,7 +8,7 @@
         "src/"
     ],
     "exexMap": {
-        "ts": "node -r ts-node/register"
+        "ts": "tsx"
     },
     "env": {
         "NODE_ENV": "development"

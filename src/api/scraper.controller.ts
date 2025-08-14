@@ -22,7 +22,7 @@ export const getActivities = async (req: Request, res: Response) => {
     const activities = formatScrapedActivities(scrapedActivities);
 
     const upcomingActivities = activities.filter(
-      (activity) => activity.closingTimestamp >= new Date().valueOf()
+      (activity) => new Date(activity.closing_timestamp) >= new Date()
     );
 
     res.status(200).json({
@@ -43,7 +43,7 @@ export const test = async (req: Request, res: Response) => {
   const activities = formatScrapedActivities(scrapedMock);
 
   const upcomingActivities = activities.filter(
-    (activity) => activity.closingTimestamp >= new Date().valueOf()
+    (activity) => new Date(activity.closing_timestamp) >= new Date()
   );
 
   res.status(200).json({
