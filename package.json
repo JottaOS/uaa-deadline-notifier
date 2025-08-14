@@ -1,0 +1,26 @@
+{
+  "name": "uaa-deadline-notifier",
+  "private": true,
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon --config nodemon.json src/server.ts",
+    "build": "tsc",
+    "serve": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.2.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "puppeteer": "^24.16.0"
+  }
+}
