@@ -9,7 +9,7 @@ import {
   getUpcomingActivities,
   insertActivityWithNotifications,
 } from "../services/activities";
-import { sendMessage } from "../notifier";
+import { sendMessage } from "./notifier";
 import { WHATSAPP_GROUP_ID } from "../libs/constants";
 
 const EVERY_SIX_HOURS = "0 */6 * * *";

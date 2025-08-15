@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { router as scraperRouter } from "./api/scraper.route";
-import "./scheduler";
+import "./modules/scheduler";
 
 const app = express();
 
