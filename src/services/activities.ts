@@ -45,16 +45,24 @@ export async function insertActivityWithNotifications(activity: Activity) {
     const closingDate = new Date(activity.closing_timestamp);
 
     REMINDER_TIMES.forEach(async (reminder) => {
-      const notificationTime = new Date(
-        closingDate.valueOf() - reminder
-      ).toISOString();
+      const notificationTime = new Date(closingDate.valueOf() - reminder);
+
+      if (new Date().valueOf() >= notificationTime.valueOf()) {
+        console.info(
+          `Notification time (${notificationTime.toISOString()}) for activity ${
+            activity.id
+          } is in the past, skipping insertion...`
+        );
+        return;
+      }
 
       console.debug(
         `Creating notification for activity ${activity.id} at ${notificationTime}`
       );
+
       await createNotification({
         activity_id: activity.id,
-        send_at: notificationTime,
+        send_at: notificationTime.toISOString(),
       });
     });
   } catch (error) {

@@ -1,4 +1,9 @@
-import type { Activity, ScrapedActivity } from "../types";
+import { format } from "date-fns";
+import type {
+  Activity,
+  NotificationWithActivity,
+  ScrapedActivity,
+} from "../types";
 import { monthsMap } from "./constants";
 
 export function xpath(xpath: string) {
@@ -85,3 +90,68 @@ const textDateToIsoString = (textDate: string): string => {
 export const pad = (text: string) => {
   return text.padStart(2, "0");
 };
+
+export const formatNotifications = (
+  notifications: NotificationWithActivity[]
+) => {
+  const grouped = new Map<string, Map<string, NotificationWithActivity[]>>();
+
+  for (const n of notifications) {
+    const closingDate = new Date(n.closing_timestamp);
+
+    const dateKey = format(closingDate, "dd/MM/yyyy");
+    const timeKey = format(closingDate, "HH:mm");
+
+    if (!grouped.has(dateKey)) {
+      grouped.set(dateKey, new Map());
+    }
+
+    const timesMap = grouped.get(dateKey)!;
+
+    if (!timesMap.has(timeKey)) {
+      timesMap.set(timeKey, []);
+    }
+
+    timesMap.get(timeKey)!.push(n);
+  }
+
+  return formatGroupedNotifications(grouped);
+};
+
+function formatGroupedNotifications(
+  grouped: Map<string, Map<string, NotificationWithActivity[]>>
+): string {
+  let output = "";
+
+  for (const [date, timesMap] of grouped) {
+    output += `📅 ${date}\n\n`;
+
+    for (const [time, notifications] of timesMap) {
+      output += `⏰ ${time}\n`;
+
+      // Agrupar por curso
+      const coursesMap = new Map<number, NotificationWithActivity[]>();
+
+      for (const n of notifications) {
+        if (!coursesMap.has(n.course_id)) {
+          coursesMap.set(n.course_id, []);
+        }
+        coursesMap.get(n.course_id)!.push(n);
+      }
+
+      for (const [courseId, courseNotifications] of coursesMap) {
+        const courseTitle = courseNotifications[0]?.course_title || "No title";
+        output += `   • ${courseTitle} (${courseId})\n`;
+
+        for (const notif of courseNotifications) {
+          output += `     - ${notif.title}\n`;
+          output += `       🔗 ${notif.url}\n\n`;
+        }
+      }
+    }
+
+    output += "\n";
+  }
+
+  return output.trim();
+}

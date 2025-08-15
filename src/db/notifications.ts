@@ -1,4 +1,8 @@
-import type { Notification, NotificationStatus } from "../types";
+import type {
+  Notification,
+  NotificationStatus,
+  NotificationWithActivity,
+} from "../types";
 import pool from "./config";
 
 export async function createNotification(
@@ -19,26 +23,25 @@ export async function createNotification(
   }
 }
 
-export async function getNotificationById(id: number) {
-  const query = `SELECT * FROM notification WHERE id = $1;`;
-  try {
-    const result = await pool.query(query, [id]);
-    return result.rows[0] as Notification;
-  } catch (error) {
-    console.error("Error fetching notification by ID:", error);
-    throw error;
-  }
-}
-
-export async function getAllNotifications() {
-  const query = `SELECT * FROM notification ORDER BY id DESC;`;
-  try {
-    const result = await pool.query(query);
-    return result.rows as Notification[];
-  } catch (error) {
-    console.error("Error fetching all notifications:", error);
-    throw error;
-  }
+export async function getPendingNotificationsWithActivity() {
+  const query = `
+   SELECT 
+      n.id AS notification_id,
+      n.activity_id,
+      n.send_at,
+      a.course_id,
+      a.course_title,
+      a.closing_timestamp,
+      a.title,
+      a.url
+    FROM notification n
+    JOIN activity a ON a.id = n.activity_id
+    WHERE n.status = 'PENDING'
+      AND n.send_at <= NOW()
+    ORDER BY a.closing_timestamp ASC
+  `;
+  const result = await pool.query(query);
+  return result.rows as NotificationWithActivity[];
 }
 
 export async function updateNotificationStatus(
@@ -56,17 +59,6 @@ export async function updateNotificationStatus(
     return result.rows[0] as Notification;
   } catch (error) {
     console.error("Error updating notification status:", error);
-    throw error;
-  }
-}
-
-export async function deleteNotification(id: number) {
-  const query = `DELETE FROM notification WHERE id = $1 RETURNING *;`;
-  try {
-    const result = await pool.query(query, [id]);
-    return result.rows[0] as Notification;
-  } catch (error) {
-    console.error("Error deleting notification:", error);
     throw error;
   }
 }

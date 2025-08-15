@@ -26,3 +26,14 @@ export interface Notification {
   status: NotificationStatus;
   created_at: string;
 }
+
+export interface NotificationWithActivity {
+  notification_id: number;
+  activity_id: number;
+  send_at: string; // ISO string
+  course_id: number;
+  course_title: string;
+  closing_timestamp: string; // ISO string
+  title: string;
+  url: string;
+}
