@@ -45,17 +45,16 @@ export async function getPendingNotificationsWithActivity() {
 }
 
 export async function updateNotificationStatus(
-  id: number,
+  ids: number[],
   status: NotificationStatus
 ) {
   const query = `
     UPDATE notification
     SET status = $2
-    WHERE id = $1
-    RETURNING *;
+    WHERE id = ANY($1::int[]);
   `;
   try {
-    const result = await pool.query(query, [id, status]);
+    const result = await pool.query(query, [ids, status]);
     return result.rows[0] as Notification;
   } catch (error) {
     console.error("Error updating notification status:", error);

@@ -1,7 +1,4 @@
 import type { Request, Response } from "express";
-import { Scraper } from "../scraper";
-import { scrapedMock } from "../libs/constants";
-import { formatScrapedActivities } from "../libs/utils";
 import {
   getUpcomingActivities,
   insertActivityWithNotifications,
@@ -30,18 +27,18 @@ export const getActivities = async (req: Request, res: Response) => {
 };
 
 export const test = async (req: Request, res: Response) => {
-  const activities = formatScrapedActivities(scrapedMock);
+  // const activities = formatScrapedActivities(scrapedMock);
 
-  const upcomingActivities = activities.filter(
-    (activity) => new Date(activity.closing_timestamp) >= new Date()
-  );
+  // const upcomingActivities = activities.filter(
+  //   (activity) => new Date(activity.closing_timestamp) >= new Date()
+  // );
 
-  for (const activity of upcomingActivities) {
-    insertActivityWithNotifications(activity);
-  }
+  // for (const activity of upcomingActivities) {
+  //   insertActivityWithNotifications(activity);
+  // }
 
   res.status(200).json({
     success: true,
-    data: upcomingActivities,
+    // data: upcomingActivities,
   });
 };

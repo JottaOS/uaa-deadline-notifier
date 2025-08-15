@@ -5,12 +5,12 @@ import "./scheduler";
 
 const app = express();
 
+app.disable("x-powered-by");
 app.use(cors());
 app.use(express.json());
 
 // Routes
 app.use("/api/scraper", scraperRouter);
-
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "healthy" });
 });
