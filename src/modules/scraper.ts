@@ -1,12 +1,19 @@
 import puppeteer, { Page, Browser } from "puppeteer";
-import { CALENDAR_URL, LOGIN_URL, PASSWORD, USERNAME } from "../libs/constants";
+import {
+  CALENDAR_URL,
+  IS_PRODUCTION,
+  LOGIN_URL,
+  PASSWORD,
+  USERNAME,
+} from "../libs/constants";
 import { delay, xpath } from "../libs/utils";
-import type { ScrapedActivity } from "../types";
+import { Module, type ScrapedActivity } from "../types";
+import baseLogger from "../libs/logger";
 
 export class Scraper {
   private browser: Browser | null = null;
   private page: Page | null = null;
-
+  private readonly logger = baseLogger.child({ module: Module.SCRAPER });
   private readonly selectors = {
     course: "/html/body/div[3]/div[5]/header/div[1]/div[2]/div/div",
     title: "/html/body/div[3]/div[5]/header/div[2]/div[1]/div/div[2]/h1",
@@ -21,25 +28,30 @@ export class Scraper {
       throw new Error("Missing credentials in environment variables");
     }
 
-    this.browser = await puppeteer.launch({
-      headless: false,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    this.page = await this.browser.newPage();
+    try {
+      this.browser = await puppeteer.launch({
+        headless: IS_PRODUCTION,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
+      this.page = await this.browser.newPage();
+      this.logger.info("Puppeteer initialized");
+    } catch (error) {
+      this.logger.error("Error initializing puppeteer");
+    }
   }
 
   async login(): Promise<void> {
     if (!this.page) throw new Error("Page not initialized");
 
-    console.log("Starting login process...");
+    this.logger.info("Starting login process...");
     await this.page.goto(LOGIN_URL, { waitUntil: "networkidle2" });
     await delay();
 
-    console.log("Filling credentials...");
+    this.logger.info("Filling credentials...");
     await this.page.type('input[name="username"]', USERNAME);
     await this.page.type('input[name="password"]', PASSWORD);
 
-    console.log("Submitting form...");
+    this.logger.info("Submitting form...");
     await Promise.all([
       this.page.waitForNavigation({ waitUntil: "networkidle2" }),
       this.page.click('button[type="submit"]'),
@@ -50,11 +62,11 @@ export class Scraper {
   async getCalendarLinks(): Promise<Set<string>> {
     if (!this.page) throw new Error("Page not initialized");
 
-    console.log("Navigating to calendar...");
+    this.logger.info("Navigating to calendar...");
     await this.page.goto(CALENDAR_URL, { waitUntil: "networkidle2" });
     await delay();
 
-    console.log("Extracting activity links...");
+    this.logger.info("Extracting activity links...");
     const hrefs = await this.page.$$eval(
       'a[data-action="view-event"]',
       // TODO: check bun lib.dom.ts imports
@@ -78,7 +90,7 @@ export class Scraper {
     };
 
     try {
-      console.log(`Scraping: ${url}`);
+      this.logger.info(`Scraping: ${url}`);
       await this.page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
 
       for (const [key, selector] of Object.entries(this.selectors)) {
@@ -93,7 +105,7 @@ export class Scraper {
         await delay();
       }
     } catch (error) {
-      console.error(`Error scraping ${url}:`, error);
+      this.logger.error(`Error scraping ${url}:`, error);
     }
 
     return scrapedActivity;

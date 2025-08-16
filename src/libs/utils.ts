@@ -129,7 +129,7 @@ function formatGroupedNotifications(
     for (const [time, notifications] of timesMap) {
       output += `⏰ ${time}\n`;
 
-      // Agrupar por curso
+      // Group by course
       const coursesMap = new Map<number, NotificationWithActivity[]>();
 
       for (const n of notifications) {

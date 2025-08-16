@@ -8,8 +8,12 @@
 
 import dotenv from "dotenv";
 import { Pool } from "pg";
+import baseLogger from "../libs/logger";
+import { Module } from "../types";
 
 dotenv.config();
+
+const logger = baseLogger.child({ module: Module.DB });
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -27,10 +31,10 @@ async function verifyConnection(): Promise<void> {
   try {
     // Attempt to acquire a client from the pool
     const client = await pool.connect();
-    console.log("✅ Connected to PostgreSQL database");
+    logger.info("✅ Connected to PostgreSQL database");
     client.release(); // Release the client back to the pool
   } catch (error) {
-    console.error("❌ Error connecting to the database:", error);
+    logger.error("❌ Error connecting to the database:", error);
   }
 }
 

@@ -1,17 +1,25 @@
 import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
+import baseLogger from "../libs/logger";
+import { Module } from "../types";
+
+const logger = baseLogger.child({ module: Module.NOTIFIER });
 
 const client = new Client({
-  authStrategy: new LocalAuth(), // Guarda la sesión localmente para evitar reescanear el QR
+  authStrategy: new LocalAuth(), // Save session locally to avoid re-scanning the QR
 });
 
 client.on("qr", (qr) => {
-  console.log("QR Code received");
+  logger.info("Whatsapp QR Code received");
   qrcode.generate(qr, { small: true });
 });
 
 client.on("ready", () => {
-  console.log("WhatsApp client is ready!");
+  logger.info("WhatsApp client is ready!");
+});
+
+client.on("auth_failure", (message) => {
+  logger.error(message);
 });
 
 /**
@@ -25,15 +33,15 @@ export async function sendMessage(
     const chat = await client.getChatById(chatId);
 
     if (!chat) {
-      console.error(`Chat not found. Id: `, chatId);
+      logger.error(`Chat not found. Id: `, chatId);
       return { success: false };
     }
 
     await client.sendMessage(chat.id._serialized, message);
-    console.log(`Whatsapp message sent successfully`);
+    logger.info(`Whatsapp message sent successfully`);
     return { success: true };
   } catch (error) {
-    console.error("Error sending whatsapp message to group:", error);
+    logger.error("Error sending whatsapp message to group:", error);
     return { success: false };
   }
 }

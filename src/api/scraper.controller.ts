@@ -3,8 +3,14 @@ import {
   getUpcomingActivities,
   insertActivityWithNotifications,
 } from "../services/activities";
+import baseLogger from "../libs/logger";
+import { Module } from "../types";
+
+const logger = baseLogger.child({ module: Module.API });
 
 export const getActivities = async (req: Request, res: Response) => {
+  // Could be a middleware but...
+  logger.info("Received /api/activities request");
   try {
     const upcomingActivities = await getUpcomingActivities();
 
@@ -12,12 +18,13 @@ export const getActivities = async (req: Request, res: Response) => {
       insertActivityWithNotifications(activity);
     }
 
+    logger.info("/api/activities response", upcomingActivities);
     res.status(200).json({
       success: true,
       data: upcomingActivities,
     });
   } catch (error) {
-    console.error("Error in getActivities:", error);
+    baseLogger.error("Error in getActivities", error);
     res.status(500).json({
       success: false,
       message: "Error fetching activities",

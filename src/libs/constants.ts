@@ -4,6 +4,7 @@ dotenv.config();
 export const USERNAME = process.env.UAA_USERNAME || "";
 export const PASSWORD = process.env.UAA_PASSWORD || "";
 export const WHATSAPP_GROUP_ID = process.env.WHATSAPP_GROUP_ID || "";
+export const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export const LOGIN_URL = "https://e.uaa.edu.py/principal.html";
 export const CALENDAR_URL = "https://e.uaa.edu.py/my/";

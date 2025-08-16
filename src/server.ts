@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import { router as scraperRouter } from "./api/scraper.route";
 import "./modules/scheduler";
+import "./modules/notifier";
+import logger from "./libs/logger";
+import { Module } from "./types";
 
 const app = express();
 
@@ -18,7 +21,7 @@ app.get("/health", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`, { module: Module.API });
 });
 
 export default app;

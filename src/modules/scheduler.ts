@@ -11,16 +11,19 @@ import {
 } from "../services/activities";
 import { sendMessage } from "./notifier";
 import { WHATSAPP_GROUP_ID } from "../libs/constants";
+import baseLogger from "../libs/logger";
+import { Module } from "../types";
 
 const EVERY_SIX_HOURS = "0 */6 * * *";
 const EVERY_FIVE_MINUTES = "*/5 * * * *";
+const logger = baseLogger.child({ module: Module.SCHEDULER });
 
 // const testEvery10Seconds = "*/10 * * * * *";
 
-console.log("[SYSTEM] Scheduler initialized");
+logger.info("Scheduler initialized");
 
 const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
-  console.log("[SYSTEM] Running scraping process", new Date().toISOString());
+  logger.info("Running scraping process");
   try {
     const upcomingActivities = await getUpcomingActivities();
 
@@ -28,24 +31,21 @@ const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
       await insertActivityWithNotifications(activity);
     }
 
-    console.log(
-      "[SYSTEM] Scraping process finished successfully",
-      new Date().toISOString()
-    );
+    logger.info("Scraping process finished successfully");
   } catch (error) {
-    console.error("[SYSTEM] Error during automatic scraping process: ", error);
+    logger.error("Error during automatic scraping process: ", error);
     throw error;
   }
 });
 
 const notificationTask = cron.schedule(EVERY_FIVE_MINUTES, async () => {
-  console.log("[SYSTEM] Running notification check", new Date().toISOString());
+  logger.info("Running notification check");
 
   try {
     const pendingNotifications = await getPendingNotificationsWithActivity();
 
     if (!pendingNotifications.length) {
-      console.log("[SYSTEM] No pending notifications found.");
+      logger.info("No pending notifications found.");
       return;
     }
 
@@ -61,20 +61,20 @@ const notificationTask = cron.schedule(EVERY_FIVE_MINUTES, async () => {
       result.success ? "SENT" : "FAILED"
     );
 
-    console.log("[SYSTEM] Notifications processed", new Date().toISOString());
+    logger.info("Notifications processed");
   } catch (error) {
-    console.error("[SYSTEM] Error during notification check: ", error);
+    logger.error("Error during notification check: ", error);
   }
 });
 
 scrapingTask.on("execution:missed", async () => {
-  console.log("[SYSTEM] Reattempting missed scrapingTask execution...");
+  logger.info("Reattempting missed scrapingTask execution...");
   await scrapingTask.execute();
-  console.log("[SYSTEM] Reattempt successful");
+  logger.info("scrapingTask reattempt successful");
 });
 
 notificationTask.on("execution:missed", async () => {
-  console.log("[SYSTEM] Reattempting missed notificationTask execution...");
+  logger.info("Reattempting missed notificationTask execution...");
   await notificationTask.execute();
-  console.log("[SYSTEM] Reattempt successful");
+  logger.info("notificationTask reattempt successful");
 });

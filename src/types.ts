@@ -37,3 +37,12 @@ export interface NotificationWithActivity {
   title: string;
   url: string;
 }
+
+export enum Module {
+  SCRAPER = "SCRAPER",
+  NOTIFIER = "NOTIFIER",
+  SCHEDULER = "SCHEDULER",
+  API = "API",
+  DB = "DB",
+  ACTIVITY_SERVICE = "ACTIVITY_SERVICE",
+}

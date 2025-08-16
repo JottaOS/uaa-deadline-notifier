@@ -1,5 +1,8 @@
-import type { Activity } from "../types";
+import { Module, type Activity } from "../types";
 import pool from "./config";
+import baseLogger from "../libs/logger";
+
+const logger = baseLogger.child({ module: Module.DB });
 
 export async function getAllPendingActivities() {
   const query = "SELECT * FROM activity a WHERE a.closing_timestamp > NOW();";
@@ -7,7 +10,7 @@ export async function getAllPendingActivities() {
     const result = await pool.query(query);
     return result.rows[0];
   } catch (error) {
-    console.error("Error executing query:", error);
+    logger.error("Error getting all pending activities", error);
     throw error;
   }
 }
@@ -34,7 +37,7 @@ export async function createActivity(activity: Activity) {
     const result = await pool.query(query, values);
     return result.rows[0];
   } catch (error) {
-    console.error("Error creating activity:", error);
+    logger.error("Error creating activity:", error);
     throw error;
   }
 }
@@ -45,7 +48,7 @@ export async function getActivityById(id: number): Promise<Activity> {
     const result = await pool.query(query, [id]);
     return result.rows[0];
   } catch (error) {
-    console.error("Error fetching activity by ID:", error);
+    logger.error("Error fetching activity by ID:", error);
     throw error;
   }
 }
@@ -56,7 +59,7 @@ export async function deleteActivity(id: number) {
     const result = await pool.query(query, [id]);
     return result.rows[0];
   } catch (error) {
-    console.error("Error deleting activity:", error);
+    logger.error("Error deleting activity:", error);
     throw error;
   }
 }
