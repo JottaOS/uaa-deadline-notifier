@@ -6,6 +6,10 @@ import { Module } from "../types";
 const logger = baseLogger.child({ module: Module.NOTIFIER });
 
 const client = new Client({
+  puppeteer: {
+    headless: true,
+    args: ["--no-sandbox"],
+  },
   authStrategy: new LocalAuth(), // Save session locally to avoid re-scanning the QR
 });
 
