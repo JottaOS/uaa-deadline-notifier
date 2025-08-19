@@ -42,6 +42,7 @@ const notificationTask = cron.schedule(EVERY_FIVE_MINUTES, async () => {
   logger.info("Running notification check");
 
   try {
+    logger.info("Querying pending notifications with activities");
     const pendingNotifications = await getPendingNotificationsWithActivity();
 
     if (!pendingNotifications.length) {
@@ -49,6 +50,7 @@ const notificationTask = cron.schedule(EVERY_FIVE_MINUTES, async () => {
       return;
     }
 
+    logger.info("Notifications found", pendingNotifications);
     const message = formatNotifications(pendingNotifications);
     const result = await sendMessage(message, WHATSAPP_GROUP_ID);
 

@@ -34,6 +34,7 @@ export async function sendMessage(
   chatId: string
 ): Promise<{ success: boolean }> {
   try {
+    logger.info("Getting whatsapp chat by id");
     const chat = await client.getChatById(chatId);
 
     if (!chat) {
@@ -41,6 +42,7 @@ export async function sendMessage(
       return { success: false };
     }
 
+    logger.info(`Sending message to chat\n${message}`);
     await client.sendMessage(chat.id._serialized, message);
     logger.info(`Whatsapp message sent successfully`);
     return { success: true };

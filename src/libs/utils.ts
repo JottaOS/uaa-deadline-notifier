@@ -5,6 +5,7 @@ import type {
   ScrapedActivity,
 } from "../types";
 import { monthsMap } from "./constants";
+import { formatInTimeZone } from "date-fns-tz";
 
 export function xpath(xpath: string) {
   return `::-p-xpath(${xpath})`;
@@ -99,8 +100,12 @@ export const formatNotifications = (
   for (const n of notifications) {
     const closingDate = new Date(n.closing_timestamp);
 
-    const dateKey = format(closingDate, "dd/MM/yyyy");
-    const timeKey = format(closingDate, "HH:mm");
+    const dateKey = formatInTimeZone(
+      closingDate,
+      "America/Asuncion",
+      "dd/MM/yyyy"
+    );
+    const timeKey = formatInTimeZone(closingDate, "America/Asuncion", "HH:mm");
 
     if (!grouped.has(dateKey)) {
       grouped.set(dateKey, new Map());
