@@ -5,6 +5,8 @@ import {
 } from "../services/activities";
 import baseLogger from "../libs/logger";
 import { Module } from "../types";
+import { formatScrapedActivities } from "../libs/utils";
+import { scrapedMock } from "../libs/constants";
 
 const logger = baseLogger.child({ module: Module.API });
 
@@ -34,15 +36,15 @@ export const getActivities = async (req: Request, res: Response) => {
 };
 
 export const test = async (req: Request, res: Response) => {
-  // const activities = formatScrapedActivities(scrapedMock);
+  const activities = formatScrapedActivities(scrapedMock);
 
-  // const upcomingActivities = activities.filter(
-  //   (activity) => new Date(activity.closing_timestamp) >= new Date()
-  // );
+  const upcomingActivities = activities.filter(
+    (activity) => new Date(activity.closing_timestamp) >= new Date()
+  );
 
-  // for (const activity of upcomingActivities) {
-  //   insertActivityWithNotifications(activity);
-  // }
+  for (const activity of upcomingActivities) {
+    insertActivityWithNotifications(activity);
+  }
 
   res.status(200).json({
     success: true,

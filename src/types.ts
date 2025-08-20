@@ -2,7 +2,7 @@ export interface ScrapedActivity {
   url: string;
   course: string;
   title: string;
-  openingDate: string;
+  openingDate: string | null;
   closingDate: string;
 }
 
@@ -11,9 +11,9 @@ export interface Activity {
   title: string;
   course_id: number;
   course_title: string;
-  type: "QUIZ" | "ASSIGN";
+  type: "QUIZ" | "ASSIGN" | "FORUM";
   url: string;
-  opening_timestamp: string; // ISO string
+  opening_timestamp: string | null; // ISO string
   closing_timestamp: string; // ISO string
 }
 

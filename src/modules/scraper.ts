@@ -1,12 +1,14 @@
 import puppeteer, { Page, Browser } from "puppeteer";
 import {
   CALENDAR_URL,
+  defaultSelectors,
+  forumSelectors,
   IS_PRODUCTION,
   LOGIN_URL,
   PASSWORD,
   USERNAME,
 } from "../libs/constants";
-import { delay, xpath } from "../libs/utils";
+import { delay, getActivityTypeFromUrl, xpath } from "../libs/utils";
 import { Module, type ScrapedActivity } from "../types";
 import baseLogger from "../libs/logger";
 
@@ -14,14 +16,6 @@ export class Scraper {
   private browser: Browser | null = null;
   private page: Page | null = null;
   private readonly logger = baseLogger.child({ module: Module.SCRAPER });
-  private readonly selectors = {
-    course: "/html/body/div[3]/div[5]/header/div[1]/div[2]/div/div",
-    title: "/html/body/div[3]/div[5]/header/div[2]/div[1]/div/div[2]/h1",
-    openingDate:
-      "/html/body/div[3]/div[5]/div[1]/div[2]/div/section/div[2]/div[1]/div/div[1]",
-    closingDate:
-      "/html/body/div[3]/div[5]/div[1]/div[2]/div/section/div[2]/div[1]/div/div[2]",
-  };
 
   async initialize(): Promise<void> {
     if (!USERNAME || !PASSWORD) {
@@ -69,8 +63,6 @@ export class Scraper {
     this.logger.info("Extracting activity links...");
     const hrefs = await this.page.$$eval(
       'a[data-action="view-event"]',
-      // TODO: check bun lib.dom.ts imports
-      // @ts-ignore
       (links) => links.map((a: HTMLAnchorElement) => a.href)
     );
 
@@ -92,11 +84,18 @@ export class Scraper {
     try {
       this.logger.info(`Scraping: ${url}`);
       await this.page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
+      const activityType = getActivityTypeFromUrl(url);
+      const selectors =
+        activityType === "FORUM" ? forumSelectors : defaultSelectors;
 
-      for (const [key, selector] of Object.entries(this.selectors)) {
+      for (const [key, selector] of Object.entries(selectors)) {
         const element = await this.page
           .waitForSelector(xpath(selector), { timeout: 10000 })
-          .catch(() => null);
+          .catch((error) => {
+            this.logger.error(`Error en selector "${key}"`, error);
+
+            return null;
+          });
 
         scrapedActivity[key as keyof ScrapedActivity] = element
           ? await this.page.evaluate((el) => el.textContent?.trim(), element)

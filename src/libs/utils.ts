@@ -15,6 +15,12 @@ export async function delay(ms: number = 1000) {
   return await new Promise((res) => setTimeout(res, ms));
 }
 
+export function getActivityTypeFromUrl(url: string) {
+  if (!url) throw new Error("URL not provided");
+
+  return url.split("/")[4]?.toUpperCase() as Activity["type"];
+}
+
 export const formatScrapedActivities = (
   scrapedActivities: ScrapedActivity[] = []
 ): Activity[] => {
@@ -23,8 +29,10 @@ export const formatScrapedActivities = (
     const [course_id, course_title] = item.course
       .split("-")
       .map((item) => item.trim());
-    const type = item.url.split("/")[4]?.toUpperCase() as Activity["type"];
-    const opening_timestamp = textDateToIsoString(item.openingDate);
+    const type = getActivityTypeFromUrl(item.url);
+    const opening_timestamp = item.openingDate
+      ? textDateToIsoString(item.openingDate)
+      : null;
     const closing_timestamp = textDateToIsoString(item.closingDate);
 
     if (!id) throw new Error("Could not get activity id from URL: " + item.url);
@@ -102,10 +110,15 @@ export const formatNotifications = (
 
     const dateKey = formatInTimeZone(
       closingDate,
-      "America/Asuncion",
+      "America/Argentina/Buenos_Aires",
       "dd/MM/yyyy"
     );
-    const timeKey = formatInTimeZone(closingDate, "America/Asuncion", "HH:mm");
+
+    const timeKey = formatInTimeZone(
+      closingDate,
+      "America/Argentina/Buenos_Aires",
+      "HH:mm"
+    );
 
     if (!grouped.has(dateKey)) {
       grouped.set(dateKey, new Map());

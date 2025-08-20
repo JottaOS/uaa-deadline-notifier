@@ -14,6 +14,22 @@ export const REMINDER_TIMES = [
   1 * 60 * 60 * 1000, // 1 hora
 ];
 
+export const defaultSelectors = {
+  course: "/html/body/div[3]/div[5]/header/div[1]/div[2]/div/div",
+  title: "/html/body/div[3]/div[5]/header/div[2]/div[1]/div/div[2]/h1",
+  openingDate:
+    "/html/body/div[3]/div[5]/div[1]/div[2]/div/section/div[2]/div[1]/div/div[1]",
+  closingDate:
+    "/html/body/div[3]/div[5]/div[1]/div[2]/div/section/div[2]/div[1]/div/div[2]",
+};
+
+export const forumSelectors = {
+  course: "/html/body/div[4]/div[5]/header/div[1]/div[2]/div/div",
+  title: "/html/body/div[4]/div[5]/header/div[2]/div[1]/div/div[2]/h1",
+  closingDate:
+    "/html/body/div[4]/div[5]/div[1]/div[2]/div/section/div[2]/div[1]/div/div",
+};
+
 export const monthsMap = new Map<string, string>([
   ["enero", "1"],
   ["febrero", "2"],
@@ -56,6 +72,13 @@ export const scrapedMock = [
     course: "375 - GUARANI PARA INFORMATICOS",
     title: "Tarea",
     openingDate: "Apertura: viernes, 8 de agosto de 2025, 18:45",
-    closingDate: "Cierre: jueves, 14 de agosto de 2025, 23:59",
+    closingDate: "Cierre: jueves, 30 de agosto de 2025, 23:59",
+  },
+  {
+    url: "https://e.uaa.edu.py/mod/forum/view.php?id=146344",
+    title: "Foro clase 3",
+    course: "371 - PROGRAMACION SQL",
+    openingDate: "",
+    closingDate: "Vencimiento: martes, 20 de agosto de 2025, 22:00",
   },
 ];
