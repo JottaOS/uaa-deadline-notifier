@@ -26,7 +26,7 @@
     "pg": "^8.16.3",
     "puppeteer": "^24.16.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "https://github.com/Julzk/whatsapp-web.js/tarball/jkr_hotfix_7",
+    "whatsapp-web.js": "github:BenyFilho/whatsapp-web.js#fix_event_ready",
     "winston": "^3.17.0"
   }
 }
