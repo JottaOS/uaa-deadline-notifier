@@ -35,3 +35,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Whatsapp web js
 .wwebjs**
+
+# Database
+*.dump
+*.bak
