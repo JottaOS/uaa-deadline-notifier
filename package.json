@@ -26,7 +26,7 @@
     "pg": "^8.16.3",
     "puppeteer": "^24.16.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "github:BenyFilho/whatsapp-web.js#fix_event_ready",
+    "whatsapp-web.js": "^1.34.0",
     "winston": "^3.17.0"
   }
 }
