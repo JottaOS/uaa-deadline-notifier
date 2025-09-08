@@ -21,7 +21,7 @@ This project uses `whatsapp-web.js`, which is an **unofficial** library for What
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/uaa-deadline-notifier.git
+git clone https://github.com/JottaOS/uaa-deadline-notifier.git
 cd uaa-deadline-notifier
 ```
 
