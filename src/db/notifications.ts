@@ -22,7 +22,7 @@ export async function createNotification(
     const result = await pool.query(query, values);
     return result.rows[0] as Notification;
   } catch (error) {
-    logger.error("Error creating notification:", error);
+    logger.error("Error creating notification:", notification, error);
     throw error;
   }
 }

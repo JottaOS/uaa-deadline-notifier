@@ -8,7 +8,12 @@ import {
   PASSWORD,
   USERNAME,
 } from "../libs/constants";
-import { delay, getActivityTypeFromUrl, xpath } from "../libs/utils";
+import {
+  delay,
+  getActivityIdFromUrl,
+  getActivityTypeFromUrl,
+  xpath,
+} from "../libs/utils";
 import { Module, type ScrapedActivity } from "../types";
 import baseLogger from "../libs/logger";
 
@@ -84,15 +89,17 @@ export class Scraper {
     try {
       this.logger.info(`Scraping: ${url}`);
       await this.page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
+      const id = getActivityIdFromUrl(url);
       const activityType = getActivityTypeFromUrl(url);
       const selectors =
         activityType === "FORUM" ? forumSelectors : defaultSelectors;
 
       for (const [key, selector] of Object.entries(selectors)) {
+        this.logger.info(`${activityType} - ${id}: Scraping ${key}...`);
         const element = await this.page
           .waitForSelector(xpath(selector), { timeout: 10000 })
           .catch((error) => {
-            this.logger.error(`Error en selector "${key}"`, error);
+            this.logger.error(`Error scraping ${url} on key ${key}`, error);
 
             return null;
           });
@@ -107,6 +114,7 @@ export class Scraper {
       this.logger.error(`Error scraping ${url}:`, error);
     }
 
+    this.logger.info(`Scraped data from ${url}: `, scrapedActivity);
     return scrapedActivity;
   }
 

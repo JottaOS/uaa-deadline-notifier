@@ -21,11 +21,27 @@ export function getActivityTypeFromUrl(url: string) {
   return url.split("/")[4]?.toUpperCase() as Activity["type"];
 }
 
+export function getActivityIdFromUrl(url: string) {
+  if (!url) throw new Error("URL not provided");
+
+  return new URL(url).searchParams.get("id");
+}
+
 export const formatScrapedActivities = (
   scrapedActivities: ScrapedActivity[] = []
 ): Activity[] => {
   return scrapedActivities.map((item) => {
-    const id = new URL(item.url).searchParams.get("id");
+    const id = getActivityIdFromUrl(item.url);
+    if (!id) throw new Error("Could not get activity id from URL: " + item.url);
+
+    const closing_timestamp = textDateToIsoString(item.closingDate);
+
+    if (!closing_timestamp)
+      throw new Error(
+        "Could not get closing timestamp from activity: " +
+          JSON.stringify(item, null, 2)
+      );
+
     const [course_id, course_title] = item.course
       .split("-")
       .map((item) => item.trim());
@@ -33,9 +49,6 @@ export const formatScrapedActivities = (
     const opening_timestamp = item.openingDate
       ? textDateToIsoString(item.openingDate)
       : null;
-    const closing_timestamp = textDateToIsoString(item.closingDate);
-
-    if (!id) throw new Error("Could not get activity id from URL: " + item.url);
 
     return {
       id: Number(id),
@@ -56,15 +69,15 @@ export const formatScrapedActivities = (
  * Example output: 2025-08-14T15:00:00+02:00
  * @param textDate Example format: "Cierre: lunes, 11 de agosto de 2025, 23:25"
  */
-const textDateToIsoString = (textDate: string): string => {
-  if (!textDate) return "";
+const textDateToIsoString = (textDate: string): string | null => {
+  if (!textDate) return null;
 
   try {
     const [_, date, time] = textDate.split(",").map((item) => item.trim());
 
     if (!date || !time) {
       console.error(`Could not extract date or time from textDate: `, textDate);
-      return "";
+      return null;
     }
 
     const [dayOfMonth, monthTitle, year] = date
@@ -76,13 +89,13 @@ const textDateToIsoString = (textDate: string): string => {
         `Could not extract dayOfMonth, monthTitle or year from date: `,
         date
       );
-      return "";
+      return null;
     }
 
     const month = monthsMap.get(monthTitle);
     if (!month) {
       console.error(`Invalid month title: ${monthTitle}`);
-      return "";
+      return null;
     }
 
     const isoDate = `${year}-${pad(month.toString())}-${pad(
@@ -92,7 +105,7 @@ const textDateToIsoString = (textDate: string): string => {
     return isoDate;
   } catch (error) {
     console.error("Error parsing date:", error);
-    return "";
+    return null;
   }
 };
 
