@@ -69,7 +69,10 @@ export async function insertActivityWithNotifications(activity: Activity) {
       });
     });
   } catch (error) {
-    logger.error("Error inserting activity with notifications:", error);
-    throw error;
+    logger.error(
+      "Error inserting activity with notifications",
+      activity,
+      error
+    );
   }
 }

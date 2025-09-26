@@ -34,7 +34,6 @@ const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
     logger.info("Scraping process finished successfully");
   } catch (error) {
     logger.error("Error during automatic scraping process: ", error);
-    throw error;
   }
 });
 

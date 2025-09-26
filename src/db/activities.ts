@@ -33,13 +33,9 @@ export async function createActivity(activity: Activity) {
     activity.opening_timestamp,
     activity.closing_timestamp,
   ];
-  try {
-    const result = await pool.query(query, values);
-    return result.rows[0];
-  } catch (error) {
-    logger.error("Error creating activity:", error);
-    throw error;
-  }
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
 }
 
 export async function getActivityById(id: number): Promise<Activity> {

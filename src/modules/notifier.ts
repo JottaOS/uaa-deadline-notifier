@@ -10,7 +10,10 @@ const client = new Client({
     headless: true,
     args: ["--no-sandbox"],
   },
-  authStrategy: new LocalAuth(), // Save session locally to avoid re-scanning the QR
+  // Save session locally to avoid re-scanning the QR
+  authStrategy: new LocalAuth({
+    dataPath: "auth",
+  }),
 });
 
 client.on("qr", (qr) => {
