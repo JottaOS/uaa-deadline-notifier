@@ -3,9 +3,9 @@ import { IS_PRODUCTION } from "./constants";
 
 const { createLogger, format, transports } = winston;
 
-const { combine, timestamp, errors, colorize, printf } = format;
+const { combine, timestamp, errors, colorize, printf, json } = format;
 
-const logFormat = combine(
+const devFormat = combine(
   colorize(),
   timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   errors({ stack: true }),
@@ -17,9 +17,11 @@ const logFormat = combine(
   })
 );
 
+const prodFormat = combine(timestamp(), errors({ stack: true }), json());
+
 const logger = createLogger({
   level: IS_PRODUCTION ? process.env.LOG_LEVEL || "info" : "debug",
-  format: logFormat,
+  format: IS_PRODUCTION ? prodFormat : devFormat,
   transports: [new transports.Console()],
 });
 

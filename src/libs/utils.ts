@@ -1,11 +1,15 @@
 import { format } from "date-fns";
-import type {
-  Activity,
-  NotificationWithActivity,
-  ScrapedActivity,
+import {
+  Module,
+  type Activity,
+  type NotificationWithActivity,
+  type ScrapedActivity,
 } from "../types";
 import { monthsMap } from "./constants";
 import { formatInTimeZone } from "date-fns-tz";
+import baseLogger from "./logger";
+
+const logger = baseLogger.child({ module: Module.UTILS });
 
 export function xpath(xpath: string) {
   return `::-p-xpath(${xpath})`;
@@ -32,15 +36,14 @@ export const formatScrapedActivities = (
 ): Activity[] => {
   return scrapedActivities.map((item) => {
     const id = getActivityIdFromUrl(item.url);
-    if (!id) throw new Error("Could not get activity id from URL: " + item.url);
+    if (!id) logger.error("Could not get activity id from URL: " + item.url);
 
     const closing_timestamp = textDateToIsoString(item.closingDate);
 
     if (!closing_timestamp)
-      throw new Error(
-        "Could not get closing timestamp from activity: " +
-          JSON.stringify(item, null, 2)
-      );
+      logger.error("Could not get closing timestamp from activity", {
+        activity: item,
+      });
 
     const [course_id, course_title] = item.course
       .split("-")
@@ -58,7 +61,7 @@ export const formatScrapedActivities = (
       url: item.url,
       type,
       opening_timestamp,
-      closing_timestamp,
+      closing_timestamp: closing_timestamp || "",
     };
   });
 };

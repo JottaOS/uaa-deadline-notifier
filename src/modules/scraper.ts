@@ -97,7 +97,7 @@ export class Scraper {
       for (const [key, selector] of Object.entries(selectors)) {
         this.logger.info(`${activityType} - ${id}: Scraping ${key}...`);
         const element = await this.page
-          .waitForSelector(xpath(selector), { timeout: 10000 })
+          .waitForSelector(xpath(selector), { timeout: 5000 })
           .catch((error) => {
             this.logger.error(`Error scraping ${url} on key ${key}`, error);
 

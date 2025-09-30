@@ -45,4 +45,5 @@ export enum Module {
   API = "API",
   DB = "DB",
   ACTIVITY_SERVICE = "ACTIVITY_SERVICE",
+  UTILS = "UTILS",
 }
