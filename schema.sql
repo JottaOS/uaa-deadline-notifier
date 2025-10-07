@@ -43,7 +43,7 @@ CREATE TABLE public.notification (
 	status varchar(255) DEFAULT 'PENDING'::character varying NULL, -- Estado actual de la notificación: PENDING, SENT o FAILED
 	created_at timestamptz DEFAULT now() NULL, -- Fecha y hora de creación del registro
 	CONSTRAINT notification_pkey PRIMARY KEY (id),
-	CONSTRAINT notification_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'SENT'::character varying, 'FAILED'::character varying])::text[])))
+	CONSTRAINT notification_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'SENT'::character varying, 'FAILED'::character varying, 'CANCELLED'::character varying])::text[])))
 );
 
 -- Column comments

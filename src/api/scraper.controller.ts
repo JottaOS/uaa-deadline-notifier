@@ -17,7 +17,7 @@ export const getActivities = async (req: Request, res: Response) => {
     const upcomingActivities = await getUpcomingActivities();
 
     for (const activity of upcomingActivities) {
-      insertActivityWithNotifications(activity);
+      await insertActivityWithNotifications(activity);
     }
 
     logger.info("/api/activities response", upcomingActivities);
@@ -43,7 +43,7 @@ export const test = async (req: Request, res: Response) => {
   );
 
   for (const activity of upcomingActivities) {
-    insertActivityWithNotifications(activity);
+    await insertActivityWithNotifications(activity);
   }
 
   res.status(200).json({

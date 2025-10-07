@@ -17,7 +17,7 @@ export interface Activity {
   closing_timestamp: string; // ISO string
 }
 
-export type NotificationStatus = "PENDING" | "SENT" | "FAILED";
+export type NotificationStatus = "PENDING" | "SENT" | "FAILED" | "CANCELLED";
 
 export interface Notification {
   id: number;
@@ -44,6 +44,7 @@ export enum Module {
   SCHEDULER = "SCHEDULER",
   API = "API",
   DB = "DB",
-  ACTIVITY_SERVICE = "ACTIVITY_SERVICE",
   UTILS = "UTILS",
+  ACTIVITY_SERVICE = "ACTIVITY_SERVICE",
+  NOTIFICATION_SERVICE = "NOTIFICATION_SERVICE",
 }
