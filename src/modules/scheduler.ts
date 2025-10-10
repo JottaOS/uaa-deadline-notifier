@@ -4,10 +4,13 @@ import {
   getPendingNotificationsWithActivity,
   updateNotificationStatus,
 } from "../db/notifications";
-import { formatNotifications } from "../libs/utils";
+import {
+  formatNotifications,
+  formatUpdatedActivitiesMessage,
+} from "../libs/utils";
 import {
   getUpcomingActivities,
-  insertActivityWithNotifications,
+  processActivityAndNotifications,
 } from "../services/activities";
 import { sendMessage } from "./notifier";
 import { WHATSAPP_GROUP_ID } from "../libs/constants";
@@ -27,8 +30,18 @@ const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
   try {
     const upcomingActivities = await getUpcomingActivities();
 
+    const updatedActivities = [];
     for (const activity of upcomingActivities) {
-      await insertActivityWithNotifications(activity);
+      const updatedActivity = await processActivityAndNotifications(activity);
+      if (updatedActivity) {
+        updatedActivities.push(updatedActivity);
+      }
+    }
+
+    if (updatedActivities.length > 0) {
+      logger.info(`Updated activities found. Sending message...`);
+      const message = formatUpdatedActivitiesMessage(updatedActivities);
+      await sendMessage(message, WHATSAPP_GROUP_ID);
     }
 
     logger.info("Scraping process finished successfully");

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import {
   Module,
+  UpdatedTimestampActivity,
   type Activity,
   type NotificationWithActivity,
   type ScrapedActivity,
@@ -116,6 +117,13 @@ export const pad = (text: string) => {
   return text.padStart(2, "0");
 };
 
+export const formatDate = (
+  date: Date,
+  formatStr: string = "dd/MM/yyyy HH:mm"
+) => {
+  return formatInTimeZone(date, "America/Argentina/Buenos_Aires", formatStr);
+};
+
 export const formatNotifications = (
   notifications: NotificationWithActivity[]
 ) => {
@@ -124,17 +132,8 @@ export const formatNotifications = (
   for (const n of notifications) {
     const closingDate = new Date(n.closing_timestamp);
 
-    const dateKey = formatInTimeZone(
-      closingDate,
-      "America/Argentina/Buenos_Aires",
-      "dd/MM/yyyy"
-    );
-
-    const timeKey = formatInTimeZone(
-      closingDate,
-      "America/Argentina/Buenos_Aires",
-      "HH:mm"
-    );
+    const dateKey = formatDate(closingDate, "dd/MM/yyyy");
+    const timeKey = formatDate(closingDate, "HH:mm");
 
     if (!grouped.has(dateKey)) {
       grouped.set(dateKey, new Map());
@@ -188,4 +187,36 @@ function formatGroupedNotifications(
   }
 
   return output.trim();
+}
+
+export function formatUpdatedActivitiesMessage(
+  updatedActivities: Array<UpdatedTimestampActivity>
+): string {
+  const groupedByCourse = new Map<number, UpdatedTimestampActivity[]>();
+
+  for (const activity of updatedActivities) {
+    if (!groupedByCourse.has(activity.course_id)) {
+      groupedByCourse.set(activity.course_id, []);
+    }
+    groupedByCourse.get(activity.course_id)!.push(activity);
+  }
+
+  let message = "⚠️ *Nuevas actualizaciones de fechas de entrega* ⚠️\n\n";
+
+  for (const [courseId, activities] of groupedByCourse) {
+    const courseTitle = activities[0]?.course_title || "Sin título";
+
+    message += `📚 *${courseId} - ${courseTitle}*\n\n`;
+
+    for (const activity of activities) {
+      const previousDate = activity.previousClosingDate;
+      const newDate = activity.newClosingDate;
+
+      message += `   📝 *${activity.title}*\n`;
+      message += `      - Fecha previa: ${formatDate(previousDate)}\n`;
+      message += `      - Nueva fecha: ${formatDate(newDate)}\n\n`;
+    }
+  }
+
+  return message.trim();
 }

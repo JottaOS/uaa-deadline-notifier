@@ -1,12 +1,16 @@
 import type { Request, Response } from "express";
 import {
   getUpcomingActivities,
-  insertActivityWithNotifications,
+  processActivityAndNotifications,
 } from "../services/activities";
 import baseLogger from "../libs/logger";
 import { Module } from "../types";
-import { formatScrapedActivities } from "../libs/utils";
-import { scrapedMock } from "../libs/constants";
+import {
+  formatScrapedActivities,
+  formatUpdatedActivitiesMessage,
+} from "../libs/utils";
+import { scrapedMock, WHATSAPP_GROUP_ID } from "../libs/constants";
+import { sendMessage } from "../modules/notifier";
 
 const logger = baseLogger.child({ module: Module.API });
 
@@ -16,8 +20,18 @@ export const getActivities = async (req: Request, res: Response) => {
   try {
     const upcomingActivities = await getUpcomingActivities();
 
+    const updatedActivities = [];
     for (const activity of upcomingActivities) {
-      insertActivityWithNotifications(activity);
+      const updatedActivity = await processActivityAndNotifications(activity);
+      if (updatedActivity) {
+        updatedActivities.push(updatedActivity);
+      }
+    }
+
+    if (updatedActivities.length > 0) {
+      logger.info(`Updated activities found. Sending message...`);
+      const message = formatUpdatedActivitiesMessage(updatedActivities);
+      await sendMessage(message, WHATSAPP_GROUP_ID);
     }
 
     logger.info("/api/activities response", upcomingActivities);
@@ -43,7 +57,7 @@ export const test = async (req: Request, res: Response) => {
   );
 
   for (const activity of upcomingActivities) {
-    insertActivityWithNotifications(activity);
+    await processActivityAndNotifications(activity);
   }
 
   res.status(200).json({

@@ -70,3 +70,25 @@ export async function updateNotificationStatus(
     throw error;
   }
 }
+
+export async function cancelPendingNotificationsByActivityId(
+  activityId: number
+) {
+  const query = `
+    UPDATE notification
+    SET status = 'CANCELLED'
+    WHERE activity_id = $1
+      AND status = 'PENDING';
+  `;
+  try {
+    const result = await pool.query(query, [activityId]);
+    return result.rows[0] as Notification;
+  } catch (error) {
+    logger.error(
+      "Error cancelling pending notifications by activity ID:",
+      activityId,
+      error
+    );
+    throw error;
+  }
+}

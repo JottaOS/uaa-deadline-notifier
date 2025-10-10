@@ -38,6 +38,34 @@ export async function createActivity(activity: Activity) {
   return result.rows[0];
 }
 
+export async function updateActivity(activity: Activity) {
+  const query = `
+        UPDATE activity
+        SET title = $2,
+            course_id = $3,
+            course_title = $4,
+            type = $5,
+            url = $6,
+            opening_timestamp = $7,
+            closing_timestamp = $8
+        WHERE id = $1
+        RETURNING *; 
+    `;
+  const values = [
+    activity.id,
+    activity.title,
+    activity.course_id,
+    activity.course_title,
+    activity.type,
+    activity.url,
+    activity.opening_timestamp,
+    activity.closing_timestamp,
+  ];
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
+}
+
 export async function getActivityById(id: number): Promise<Activity> {
   const query = "SELECT * FROM activity WHERE id = $1";
   try {

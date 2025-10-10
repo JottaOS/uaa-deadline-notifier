@@ -1,10 +1,14 @@
 import baseLogger from "../libs/logger";
-import { createActivity, getActivityById } from "../db/activities";
-import { createNotification } from "../db/notifications";
-import { REMINDER_TIMES } from "../libs/constants";
+import {
+  createActivity,
+  getActivityById,
+  updateActivity,
+} from "../db/activities";
+import { cancelPendingNotificationsByActivityId } from "../db/notifications";
 import { formatScrapedActivities } from "../libs/utils";
 import { Scraper } from "../modules/scraper";
-import { Module, type Activity } from "../types";
+import { Module, UpdatedTimestampActivity, type Activity } from "../types";
+import { insertNotificationsFromActivity } from "./notifications";
 
 const logger = baseLogger.child({ module: Module.ACTIVITY_SERVICE });
 
@@ -14,6 +18,7 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
   await scraper.initialize();
   await scraper.login();
   const links = await scraper.getCalendarLinks();
+  // const links = ["https://e.uaa.edu.py/mod/quiz/view.php?id=161065"];
 
   const scrapedActivities = [];
   for (const url of links) {
@@ -32,42 +37,52 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
   return upcomingActivities;
 }
 
-export async function insertActivityWithNotifications(activity: Activity) {
+/**
+ * Processes an activity by either creating it as new or updating it if it already exists.
+ *
+ * @param activity - The activity to be processed
+ * @returns {Promise<UpdatedTimestampActivity | void>} Returns an object with activity and timestamp details if updated,
+ *                                                     void if activity exists but wasn't updated or was newly created
+ */
+export async function processActivityAndNotifications(
+  activity: Activity
+): Promise<UpdatedTimestampActivity | void> {
   try {
     const existingActivity = await getActivityById(activity.id);
     if (existingActivity) {
-      logger.info(
-        `Activity with ID ${activity.id} already exists, skipping insertion...`
-      );
+      const previousClosingDate = new Date(existingActivity.closing_timestamp);
+      const newClosingDate = new Date(activity.closing_timestamp);
+
+      const hasUpdatedClosingTimestamp =
+        previousClosingDate.valueOf() !== newClosingDate.valueOf();
+      if (hasUpdatedClosingTimestamp) {
+        logger.info(
+          `Activity with ID ${activity.id} already exists but has updated closing timestamp. Updating...`,
+          { previousClosingDate, newClosingDate }
+        );
+
+        await updateActivity(activity);
+        logger.info("Activity updated successfully: ", activity);
+
+        await cancelPendingNotificationsByActivityId(activity.id);
+        logger.info(
+          `Cancelled pending notifications for activity ID ${activity.id}`
+        );
+        await insertNotificationsFromActivity(activity);
+
+        return { ...activity, previousClosingDate, newClosingDate };
+      } else {
+        logger.info(
+          `Activity with ID ${activity.id} already exists, skipping insertion...`
+        );
+      }
       return;
     }
 
     const result = await createActivity(activity);
     logger.info("Activity created successfully: ", result);
 
-    const closingDate = new Date(activity.closing_timestamp);
-
-    REMINDER_TIMES.forEach(async (reminder) => {
-      const notificationTime = new Date(closingDate.valueOf() - reminder);
-
-      if (new Date().valueOf() >= notificationTime.valueOf()) {
-        logger.info(
-          `Notification time (${notificationTime.toISOString()}) for activity ${
-            activity.id
-          } is in the past, skipping insertion...`
-        );
-        return;
-      }
-
-      logger.info(
-        `Creating notification for activity ${activity.id} at ${notificationTime}`
-      );
-
-      await createNotification({
-        activity_id: activity.id,
-        send_at: notificationTime.toISOString(),
-      });
-    });
+    await insertNotificationsFromActivity(activity);
   } catch (error) {
     logger.error(
       "Error inserting activity with notifications",
