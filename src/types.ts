@@ -17,6 +17,12 @@ export interface Activity {
   closing_timestamp: string; // ISO string
 }
 
+export interface UpdatedTimestampActivity
+  extends Omit<Activity, "closing_timestamp"> {
+  previousClosingDate: Date;
+  newClosingDate: Date;
+}
+
 export type NotificationStatus = "PENDING" | "SENT" | "FAILED" | "CANCELLED";
 
 export interface Notification {

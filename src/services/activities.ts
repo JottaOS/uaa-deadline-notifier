@@ -7,7 +7,7 @@ import {
 import { cancelPendingNotificationsByActivityId } from "../db/notifications";
 import { formatScrapedActivities } from "../libs/utils";
 import { Scraper } from "../modules/scraper";
-import { Module, type Activity } from "../types";
+import { Module, UpdatedTimestampActivity, type Activity } from "../types";
 import { insertNotificationsFromActivity } from "./notifications";
 
 const logger = baseLogger.child({ module: Module.ACTIVITY_SERVICE });
@@ -18,6 +18,7 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
   await scraper.initialize();
   await scraper.login();
   const links = await scraper.getCalendarLinks();
+  // const links = ["https://e.uaa.edu.py/mod/quiz/view.php?id=161065"];
 
   const scrapedActivities = [];
   for (const url of links) {
@@ -36,7 +37,16 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
   return upcomingActivities;
 }
 
-export async function insertActivityWithNotifications(activity: Activity) {
+/**
+ * Processes an activity by either creating it as new or updating it if it already exists.
+ *
+ * @param activity - The activity to be processed
+ * @returns {Promise<UpdatedTimestampActivity | void>} Returns an object with activity and timestamp details if updated,
+ *                                                     void if activity exists but wasn't updated or was newly created
+ */
+export async function processActivityAndNotifications(
+  activity: Activity
+): Promise<UpdatedTimestampActivity | void> {
   try {
     const existingActivity = await getActivityById(activity.id);
     if (existingActivity) {
@@ -60,7 +70,7 @@ export async function insertActivityWithNotifications(activity: Activity) {
         );
         await insertNotificationsFromActivity(activity);
 
-        return;
+        return { ...activity, previousClosingDate, newClosingDate };
       } else {
         logger.info(
           `Activity with ID ${activity.id} already exists, skipping insertion...`
