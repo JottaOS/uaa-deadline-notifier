@@ -11,7 +11,7 @@ CREATE TABLE public.activity (
 	title varchar(255) NOT NULL, -- Título descriptivo de la actividad
 	course_id int4 NOT NULL, -- Código identificador del curso
 	course_title varchar(255) NOT NULL, -- Título del curso al que pertenece la actividad
-	"type" varchar(255) NOT NULL, -- Tipo de actividad: QUIZ o ASSIGN
+	"type" varchar(255) NOT NULL, -- Tipo de actividad: QUIZ, ASSIGN o FORUM
 	url varchar(255) NOT NULL, -- URL de acceso a la actividad en e-campus
 	opening_timestamp timestamptz NULL, -- Fecha y hora de apertura de la actividad (TIMESTAMPTZ)
 	closing_timestamp timestamptz NOT NULL, -- Fecha y hora de cierre o vencimiento de la actividad (TIMESTAMPTZ)
@@ -25,7 +25,7 @@ COMMENT ON COLUMN public.activity.id IS 'ID único de la actividad (código gene
 COMMENT ON COLUMN public.activity.title IS 'Título descriptivo de la actividad';
 COMMENT ON COLUMN public.activity.course_id IS 'Código identificador del curso';
 COMMENT ON COLUMN public.activity.course_title IS 'Título del curso al que pertenece la actividad';
-COMMENT ON COLUMN public.activity."type" IS 'Tipo de actividad: QUIZ o ASSIGN';
+COMMENT ON COLUMN public.activity."type" IS 'Tipo de actividad: QUIZ, ASSIGN o FORUM';
 COMMENT ON COLUMN public.activity.url IS 'URL de acceso a la actividad en e-campus';
 COMMENT ON COLUMN public.activity.opening_timestamp IS 'Fecha y hora de apertura de la actividad (TIMESTAMPTZ)';
 COMMENT ON COLUMN public.activity.closing_timestamp IS 'Fecha y hora de cierre o vencimiento de la actividad (TIMESTAMPTZ)';

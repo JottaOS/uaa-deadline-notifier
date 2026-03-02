@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    container_name: uaa-notifier
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./auth:/app/auth # persistir sesión whatsapp
+
+  db:
+    image: postgres:16-alpine
+    container_name: uaa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # persiste la base de datos
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql # crea el schema al iniciar
+
+volumes:
+  postgres_data:
