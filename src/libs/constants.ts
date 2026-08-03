@@ -8,6 +8,7 @@ export const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export const LOGIN_URL = "https://e.uaa.edu.py/principal.html";
 export const CALENDAR_URL = "https://e.uaa.edu.py/my/";
+export const SMOWL_SCRIPT_PATH = "blocks/smowl/lib/access_control.js";
 export const REMINDER_TIMES = [
   16 * 60 * 60 * 1000, // 16 horas
   6 * 60 * 60 * 1000, // 6 horas
@@ -52,6 +53,7 @@ export const scrapedMock = [
     title: "Cuestionario 01",
     openingDate: "Abrió: martes, 5 de agosto de 2025, 22:00",
     closingDate: "Cierra: martes, 12 de agosto de 2025, 23:59",
+    isSmowlMonitored: true,
   },
   {
     url: "https://e.uaa.edu.py/mod/quiz/view.php?id=114248",
@@ -59,6 +61,7 @@ export const scrapedMock = [
     title: "Cuestionario de la Clase 1",
     openingDate: "Abrió: jueves, 7 de agosto de 2025, 20:00",
     closingDate: "Cierra: jueves, 14 de agosto de 2025, 23:59",
+    isSmowlMonitored: false,
   },
   {
     url: "https://e.uaa.edu.py/mod/assign/view.php?id=116079",
@@ -66,6 +69,7 @@ export const scrapedMock = [
     title: "Tarea 1",
     openingDate: "Apertura: lunes, 4 de agosto de 2025, 00:00",
     closingDate: "Cierre: lunes, 11 de agosto de 2025, 23:25",
+    isSmowlMonitored: false,
   },
   {
     url: "https://e.uaa.edu.py/mod/assign/view.php?id=107406",
@@ -73,6 +77,7 @@ export const scrapedMock = [
     title: "Tarea",
     openingDate: "Apertura: viernes, 8 de agosto de 2025, 18:45",
     closingDate: "Cierre: jueves, 30 de agosto de 2025, 23:59",
+    isSmowlMonitored: true,
   },
   {
     url: "https://e.uaa.edu.py/mod/forum/view.php?id=146344",
@@ -80,5 +85,6 @@ export const scrapedMock = [
     course: "371 - PROGRAMACION SQL",
     openingDate: "",
     closingDate: "Vencimiento: martes, 20 de agosto de 2025, 22:00",
+    isSmowlMonitored: false,
   },
 ];

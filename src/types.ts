@@ -4,6 +4,7 @@ export interface ScrapedActivity {
   title: string;
   openingDate: string | null;
   closingDate: string;
+  isSmowlMonitored: boolean;
 }
 
 export interface Activity {
@@ -15,6 +16,7 @@ export interface Activity {
   url: string;
   opening_timestamp: string | null; // ISO string
   closing_timestamp: string; // ISO string
+  is_smowl_monitored: boolean;
 }
 
 export interface UpdatedTimestampActivity
@@ -42,6 +44,7 @@ export interface NotificationWithActivity {
   closing_timestamp: string; // ISO string
   title: string;
   url: string;
+  is_smowl_monitored: boolean;
 }
 
 export enum Module {
