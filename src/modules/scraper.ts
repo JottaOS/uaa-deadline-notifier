@@ -6,6 +6,7 @@ import {
   IS_PRODUCTION,
   LOGIN_URL,
   PASSWORD,
+  SMOWL_SCRIPT_PATH,
   USERNAME,
 } from "../libs/constants";
 import {
@@ -84,6 +85,7 @@ export class Scraper {
       course: "",
       openingDate: "",
       closingDate: "",
+      isSmowlMonitored: false,
     };
 
     try {
@@ -93,6 +95,12 @@ export class Scraper {
       const activityType = getActivityTypeFromUrl(url);
       const selectors =
         activityType === "FORUM" ? forumSelectors : defaultSelectors;
+
+      const html = await this.page.content();
+      scrapedActivity.isSmowlMonitored = html.includes(SMOWL_SCRIPT_PATH);
+      this.logger.info(
+        `${activityType} - ${id}: isSmowlMonitored=${scrapedActivity.isSmowlMonitored}`
+      );
 
       for (const [key, selector] of Object.entries(selectors)) {
         this.logger.info(`${activityType} - ${id}: Scraping ${key}...`);
@@ -104,7 +112,10 @@ export class Scraper {
             return null;
           });
 
-        scrapedActivity[key as keyof ScrapedActivity] = element
+        scrapedActivity[key as keyof Pick<
+          ScrapedActivity,
+          "course" | "title" | "openingDate" | "closingDate"
+        >] = element
           ? await this.page.evaluate((el) => el.textContent?.trim(), element)
           : "";
 

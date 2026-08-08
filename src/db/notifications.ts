@@ -38,7 +38,8 @@ export async function getPendingNotificationsWithActivity() {
         a.course_title,
         a.closing_timestamp,
         a.title,
-        a.url
+        a.url,
+        a.is_smowl_monitored
       FROM notification n
       JOIN activity a ON a.id = n.activity_id
       WHERE n.status = 'PENDING'

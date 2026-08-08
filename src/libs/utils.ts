@@ -63,6 +63,7 @@ export const formatScrapedActivities = (
       type,
       opening_timestamp,
       closing_timestamp: closing_timestamp || "",
+      is_smowl_monitored: item.isSmowlMonitored,
     };
   });
 };
@@ -178,6 +179,9 @@ function formatGroupedNotifications(
 
         for (const notif of courseNotifications) {
           output += `     - ${notif.title}\n`;
+          if (notif.is_smowl_monitored) {
+            output += `       🔍 Monitoreada con SMOWL\n`;
+          }
           output += `       🔗 ${notif.url}\n\n`;
         }
       }
@@ -214,7 +218,11 @@ export function formatUpdatedActivitiesMessage(
 
       message += `   📝 *${activity.title}*\n`;
       message += `      - Fecha previa: ${formatDate(previousDate)}\n`;
-      message += `      - Nueva fecha: ${formatDate(newDate)}\n\n`;
+      message += `      - Nueva fecha: ${formatDate(newDate)}\n`;
+      if (activity.is_smowl_monitored) {
+        message += `      - 🔍 Monitoreada con SMOWL\n`;
+      }
+      message += `\n`;
     }
   }
 

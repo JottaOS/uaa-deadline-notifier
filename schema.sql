@@ -15,6 +15,7 @@ CREATE TABLE public.activity (
 	url varchar(255) NOT NULL, -- URL de acceso a la actividad en e-campus
 	opening_timestamp timestamptz NULL, -- Fecha y hora de apertura de la actividad (TIMESTAMPTZ)
 	closing_timestamp timestamptz NOT NULL, -- Fecha y hora de cierre o vencimiento de la actividad (TIMESTAMPTZ)
+	is_smowl_monitored boolean NOT NULL DEFAULT false, -- Indica si la actividad es monitoreada por SMOWL
 	CONSTRAINT activity_pkey PRIMARY KEY (id),
 	CONSTRAINT activity_type_check CHECK (((type)::text = ANY ((ARRAY['QUIZ'::character varying, 'ASSIGN'::character varying, 'FORUM'::character varying])::text[])))
 );
@@ -29,6 +30,7 @@ COMMENT ON COLUMN public.activity."type" IS 'Tipo de actividad: QUIZ o ASSIGN';
 COMMENT ON COLUMN public.activity.url IS 'URL de acceso a la actividad en e-campus';
 COMMENT ON COLUMN public.activity.opening_timestamp IS 'Fecha y hora de apertura de la actividad (TIMESTAMPTZ)';
 COMMENT ON COLUMN public.activity.closing_timestamp IS 'Fecha y hora de cierre o vencimiento de la actividad (TIMESTAMPTZ)';
+COMMENT ON COLUMN public.activity.is_smowl_monitored IS 'Indica si la actividad es monitoreada por SMOWL';
 
 -- public.notification definition
 

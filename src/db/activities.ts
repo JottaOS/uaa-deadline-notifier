@@ -19,8 +19,8 @@ export async function getAllPendingActivities() {
 export async function createActivity(activity: Activity) {
   const query = `
         INSERT INTO activity 
-            (id, title, course_id, course_title, type, url, opening_timestamp, closing_timestamp)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            (id, title, course_id, course_title, type, url, opening_timestamp, closing_timestamp, is_smowl_monitored)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *;
     `;
   const values = [
@@ -32,6 +32,7 @@ export async function createActivity(activity: Activity) {
     activity.url,
     activity.opening_timestamp,
     activity.closing_timestamp,
+    activity.is_smowl_monitored,
   ];
 
   const result = await pool.query(query, values);
@@ -47,7 +48,8 @@ export async function updateActivity(activity: Activity) {
             type = $5,
             url = $6,
             opening_timestamp = $7,
-            closing_timestamp = $8
+            closing_timestamp = $8,
+            is_smowl_monitored = $9
         WHERE id = $1
         RETURNING *; 
     `;
@@ -60,6 +62,7 @@ export async function updateActivity(activity: Activity) {
     activity.url,
     activity.opening_timestamp,
     activity.closing_timestamp,
+    activity.is_smowl_monitored,
   ];
 
   const result = await pool.query(query, values);
