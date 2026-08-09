@@ -9,8 +9,8 @@ import {
   formatScrapedActivities,
   formatUpdatedActivitiesMessage,
 } from "../libs/utils";
-import { scrapedMock, WHATSAPP_GROUP_ID } from "../libs/constants";
-import { sendMessage } from "../modules/notifier";
+import { scrapedMock } from "../libs/constants";
+import { notifier } from "../modules/notifier";
 
 const logger = baseLogger.child({ module: Module.API });
 
@@ -31,7 +31,7 @@ export const getActivities = async (req: Request, res: Response) => {
     if (updatedActivities.length > 0) {
       logger.info(`Updated activities found. Sending message...`);
       const message = formatUpdatedActivitiesMessage(updatedActivities);
-      await sendMessage(message, WHATSAPP_GROUP_ID);
+      await notifier.send(message);
     }
 
     logger.info("/api/activities response", upcomingActivities);

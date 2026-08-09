@@ -57,3 +57,14 @@ export enum Module {
   ACTIVITY_SERVICE = "ACTIVITY_SERVICE",
   NOTIFICATION_SERVICE = "NOTIFICATION_SERVICE",
 }
+
+export type ProviderName = "whatsapp" | "telegram";
+
+export interface SendMessageResult {
+  success: boolean;
+}
+
+export interface NotificationProvider {
+  readonly name: ProviderName;
+  send(message: string): Promise<SendMessageResult>;
+}
