@@ -14,7 +14,7 @@ const devFormat = combine(
     return `${timestamp} ${level}:  [${module}] ${message} ${
       stack || ""
     } ${metaString}`;
-  })
+  }),
 );
 
 const prodFormat = combine(timestamp(), errors({ stack: true }), json());

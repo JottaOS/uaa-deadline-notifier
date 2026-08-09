@@ -18,7 +18,7 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
   await scraper.initialize();
   await scraper.login();
   const links = await scraper.getCalendarLinks();
-  // const links = ["https://e.uaa.edu.py/mod/quiz/view.php?id=161065"];
+  // const links = ["https://e.uaa.edu.py/mod/forum/view.php?id=320786"];
 
   const scrapedActivities = [];
   for (const url of links) {
@@ -28,6 +28,7 @@ export async function getUpcomingActivities(): Promise<Activity[]> {
 
   await scraper.close();
 
+  console.log(scrapedActivities)
   const activities = formatScrapedActivities(scrapedActivities);
 
   const upcomingActivities = activities.filter(

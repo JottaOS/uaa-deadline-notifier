@@ -33,7 +33,7 @@ export function getActivityIdFromUrl(url: string) {
 }
 
 export const formatScrapedActivities = (
-  scrapedActivities: ScrapedActivity[] = []
+  scrapedActivities: ScrapedActivity[] = [],
 ): Activity[] => {
   return scrapedActivities.map((item) => {
     const id = getActivityIdFromUrl(item.url);
@@ -92,7 +92,7 @@ const textDateToIsoString = (textDate: string): string | null => {
     if (!dayOfMonth || !monthTitle || !year) {
       console.error(
         `Could not extract dayOfMonth, monthTitle or year from date: `,
-        date
+        date,
       );
       return null;
     }
@@ -104,7 +104,7 @@ const textDateToIsoString = (textDate: string): string | null => {
     }
 
     const isoDate = `${year}-${pad(month.toString())}-${pad(
-      dayOfMonth
+      dayOfMonth,
     )}T${time}:00.00-03:00`;
 
     return isoDate;
@@ -120,13 +120,13 @@ export const pad = (text: string) => {
 
 export const formatDate = (
   date: Date,
-  formatStr: string = "dd/MM/yyyy HH:mm"
+  formatStr: string = "dd/MM/yyyy HH:mm",
 ) => {
   return formatInTimeZone(date, "America/Argentina/Buenos_Aires", formatStr);
 };
 
 export const formatNotifications = (
-  notifications: NotificationWithActivity[]
+  notifications: NotificationWithActivity[],
 ) => {
   const grouped = new Map<string, Map<string, NotificationWithActivity[]>>();
 
@@ -153,7 +153,7 @@ export const formatNotifications = (
 };
 
 function formatGroupedNotifications(
-  grouped: Map<string, Map<string, NotificationWithActivity[]>>
+  grouped: Map<string, Map<string, NotificationWithActivity[]>>,
 ): string {
   let output = "";
 
@@ -194,7 +194,7 @@ function formatGroupedNotifications(
 }
 
 export function formatUpdatedActivitiesMessage(
-  updatedActivities: Array<UpdatedTimestampActivity>
+  updatedActivities: Array<UpdatedTimestampActivity>,
 ): string {
   const groupedByCourse = new Map<number, UpdatedTimestampActivity[]>();
 

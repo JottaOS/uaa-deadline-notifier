@@ -12,8 +12,7 @@ import {
   getUpcomingActivities,
   processActivityAndNotifications,
 } from "../services/activities";
-import { sendMessage } from "./notifier";
-import { WHATSAPP_GROUP_ID } from "../libs/constants";
+import { notifier } from "./notifier";
 import baseLogger from "../libs/logger";
 import { Module } from "../types";
 
@@ -41,7 +40,7 @@ const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
     if (updatedActivities.length > 0) {
       logger.info(`Updated activities found. Sending message...`);
       const message = formatUpdatedActivitiesMessage(updatedActivities);
-      await sendMessage(message, WHATSAPP_GROUP_ID);
+      await notifier.send(message);
     }
 
     logger.info("Scraping process finished successfully");
@@ -64,15 +63,15 @@ const notificationTask = cron.schedule(EVERY_FIVE_MINUTES, async () => {
 
     logger.info("Notifications found", pendingNotifications);
     const message = formatNotifications(pendingNotifications);
-    const result = await sendMessage(message, WHATSAPP_GROUP_ID);
+    const result = await notifier.send(message);
 
     const pendingNotificationIds = pendingNotifications.map(
-      (item) => item.notification_id
+      (item) => item.notification_id,
     );
 
     await updateNotificationStatus(
       pendingNotificationIds,
-      result.success ? "SENT" : "FAILED"
+      result.success ? "SENT" : "FAILED",
     );
 
     logger.info("Notifications processed");
