@@ -3,7 +3,6 @@ import {
   CALENDAR_URL,
   defaultSelectors,
   forumSelectors,
-  IS_PRODUCTION,
   LOGIN_URL,
   PASSWORD,
   SMOWL_SCRIPT_PATH,
@@ -21,6 +20,7 @@ import baseLogger from "../libs/logger";
 export class Scraper {
   private browser: Browser | null = null;
   private page: Page | null = null;
+  private closing = false;
   private readonly logger = baseLogger.child({ module: Module.SCRAPER });
 
   async initialize(): Promise<void> {
@@ -28,16 +28,12 @@ export class Scraper {
       throw new Error("Missing credentials in environment variables");
     }
 
-    try {
-      this.browser = await puppeteer.launch({
-        headless: IS_PRODUCTION,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      });
-      this.page = await this.browser.newPage();
-      this.logger.info("Puppeteer initialized");
-    } catch (error) {
-      this.logger.error("Error initializing puppeteer");
-    }
+    this.browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    this.page = await this.browser.newPage();
+    this.logger.info("Puppeteer initialized");
   }
 
   async login(): Promise<void> {
@@ -130,8 +126,21 @@ export class Scraper {
   }
 
   async close(): Promise<void> {
-    if (this.browser) {
-      await this.browser.close();
+    if (this.closing) return;
+    this.closing = true;
+
+    const browser = this.browser;
+    this.browser = null;
+    this.page = null;
+
+    try {
+      if (browser) {
+        await browser.close();
+      }
+    } catch (error) {
+      this.logger.error("Error closing puppeteer browser", error);
+    } finally {
+      this.closing = false;
     }
   }
 }

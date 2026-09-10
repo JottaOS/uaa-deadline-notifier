@@ -24,7 +24,15 @@ const logger = baseLogger.child({ module: Module.SCHEDULER });
 
 logger.info("Scheduler initialized");
 
+let isScraping = false;
+
 const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
+  if (isScraping) {
+    logger.info("Scraping process already running, skipping this execution");
+    return;
+  }
+
+  isScraping = true;
   logger.info("Running scraping process");
   try {
     const upcomingActivities = await getUpcomingActivities();
@@ -46,6 +54,8 @@ const scrapingTask = cron.schedule(EVERY_SIX_HOURS, async () => {
     logger.info("Scraping process finished successfully");
   } catch (error) {
     logger.error("Error during automatic scraping process: ", error);
+  } finally {
+    isScraping = false;
   }
 });
 

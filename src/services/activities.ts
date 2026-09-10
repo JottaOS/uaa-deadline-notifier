@@ -15,27 +15,25 @@ const logger = baseLogger.child({ module: Module.ACTIVITY_SERVICE });
 export async function getUpcomingActivities(): Promise<Activity[]> {
   const scraper = new Scraper();
 
-  await scraper.initialize();
-  await scraper.login();
-  const links = await scraper.getCalendarLinks();
-  // const links = ["https://e.uaa.edu.py/mod/forum/view.php?id=320786"];
+  try {
+    await scraper.initialize();
+    await scraper.login();
+    const links = await scraper.getCalendarLinks();
 
-  const scrapedActivities = [];
-  for (const url of links) {
-    const activity = await scraper.scrapeActivity(url);
-    scrapedActivities.push(activity);
+    const scrapedActivities = [];
+    for (const url of links) {
+      const activity = await scraper.scrapeActivity(url);
+      scrapedActivities.push(activity);
+    }
+
+    const activities = formatScrapedActivities(scrapedActivities);
+
+    return activities.filter(
+      (activity) => new Date(activity.closing_timestamp) >= new Date()
+    );
+  } finally {
+    await scraper.close();
   }
-
-  await scraper.close();
-
-  console.log(scrapedActivities)
-  const activities = formatScrapedActivities(scrapedActivities);
-
-  const upcomingActivities = activities.filter(
-    (activity) => new Date(activity.closing_timestamp) >= new Date()
-  );
-
-  return upcomingActivities;
 }
 
 /**
